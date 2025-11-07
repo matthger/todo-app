@@ -1,5 +1,5 @@
 import { AnimatePresence } from 'framer-motion';
-import { Inbox, Plus } from 'lucide-react';
+import { ClipboardList, Inbox, Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { todoService } from './api/services/todo.service';
@@ -13,6 +13,9 @@ function App() {
     const [error, setError] = useState<string | null>(null);
     const [showAdd, setShowAdd] = useState(false);
     const [editTodo, setEditTodo] = useState<Todo | null>(null);
+    const [filterStatus, setFilterStatus] = useState<Todo['status'] | 'all'>('all');
+    const [sortBy, setSortBy] = useState<'title' | 'status'>('title');
+    const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
         const fetchTodos = async () => {
@@ -67,10 +70,20 @@ function App() {
         }
     };
 
+    const filteredTodos = todos
+        .filter(todo =>
+            (filterStatus === 'all' || todo.status === filterStatus) &&
+            todo.title.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+        .sort((a, b) => sortBy === 'title' ? a.title.localeCompare(b.title) : a.status.localeCompare(b.status));
+
     return (
         <div className='max-w-xl mx-auto p-6'>
-            <div className="flex items-center justify-between mb-6">
-                <h1 className="text-2xl font-bold">To-Do Liste</h1>
+            <div className="flex items-center justify-between mb-4">
+                <h1 className="flex items-center text-2xl font-bold gap-2">
+                    <ClipboardList className="w-6 h-6 text-blue-700" />
+                    To-Do Liste
+                </h1>
                 <button
                     onClick={() => setShowAdd(true)}
                     className="
@@ -85,6 +98,50 @@ function App() {
                     <Plus className="w-5 h-5" />
                 </button>
             </div>
+
+            <div className="flex flex-col md:flex-row gap-2 mb-6">
+                <input
+                    type="text"
+                    placeholder="Suche..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="
+                      flex-1 p-3 rounded-xl border border-gray-300 bg-gray-50
+                      placeholder-gray-400 text-gray-900
+                      focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-gray-400
+                      transition-all duration-300 ease-in-out
+                    "
+                />
+
+                <select
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value as Todo['status'] | 'all')}
+                    className="
+                      p-3 rounded-xl border border-gray-300 bg-gray-50 text-gray-900
+                      focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-gray-400
+                      transition-all duration-300 ease-in-out
+                    "
+                >
+                    <option value="all">Alle</option>
+                    <option value="open">Offen</option>
+                    <option value="in_progress">In Bearbeitung</option>
+                    <option value="done">Erledigt</option>
+                </select>
+
+                <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as 'title' | 'status')}
+                    className="
+                      p-3 rounded-xl border border-gray-300 bg-gray-50 text-gray-900
+                      focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-gray-400
+                      transition-all duration-300 ease-in-out
+                    "
+                >
+                    <option value="title">Nach Titel</option>
+                    <option value="status">Nach Status</option>
+                </select>
+            </div>
+
 
             {loading && <p>Lade...</p>}
             {error && !loading && (
@@ -112,8 +169,19 @@ function App() {
                     </div>
                 )}
 
+                {filteredTodos.length === 0 && !loading && !error && (
+                    <div className="flex items-center gap-2 p-4 mb-4 text-gray-700 bg-gray-50 border border-gray-200 rounded-xl shadow animate-fade-in">
+                        <Inbox className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                        <span className="text-sm font-medium">
+                          {searchQuery || filterStatus !== 'all'
+                              ? 'Keine To-Dos entsprechen der Suche/Filter.'
+                              : 'Keine To-Dos vorhanden. Füge welche hinzu, um zu beginnen!'}
+                        </span>
+                    </div>
+                )}
+
                 <AnimatePresence>
-                    {todos.map((todo) => (
+                    {filteredTodos.map((todo) => (
                         <ToDoCard
                             key={todo.id}
                             todo={todo}
