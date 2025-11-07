@@ -29,9 +29,14 @@ function App() {
 
     const handleAdd = async () => {
         if (!title.trim()) return;
-        const newTodo = await todoService.create({ title, status: 'open' });
-        setTodos([newTodo, ...todos]);
-        setTitle('');
+        try {
+            const newTodo = await todoService.create({ title, status: 'open' });
+            setTodos([newTodo, ...todos]);
+            setTitle('');
+        } catch (err) {
+            console.error(err);
+            setError('Failed to add todo');
+        }
     };
 
     const handleDelete = async (id: number) => {
@@ -68,7 +73,7 @@ function App() {
 
             <div className='flex flex-col gap-3'>
                 <AnimatePresence>
-                    {todos.map(todo => (
+                    {todos.map((todo) => (
                         <TodoCard
                             key={todo.id}
                             todo={todo}
