@@ -1,20 +1,20 @@
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { motion } from 'framer-motion';
-import { Edit, Trash2, Circle, Loader2, CheckCircle2 } from 'lucide-react';
+import { Edit, Trash2, Circle, CheckCircle2, Hourglass } from 'lucide-react';
 
 import { Todo } from '../interfaces/todo.interface';
 
-interface TodoCardProps {
+interface ToDoCardProps {
     todo: Todo;
     onEdit?: (todo: Todo) => void;
     onDelete?: (id: number) => void;
 }
 
-export const TodoCard: React.FC<TodoCardProps> = ({ todo, onEdit, onDelete }) => {
+export const ToDoCard: React.FC<ToDoCardProps> = ({ todo, onEdit, onDelete }) => {
     const statusInfo = {
         open: { icon: <Circle className='text-gray-400' />, label: 'Offen' },
         in_progress: {
-            icon: <Loader2 className='text-blue-500 animate-spin-slow' />,
+            icon: <Hourglass className='text-blue-500' />,
             label: 'In Bearbeitung'
         },
         done: { icon: <CheckCircle2 className='text-green-500' />, label: 'Erledigt' }
@@ -73,18 +73,51 @@ export const TodoCard: React.FC<TodoCardProps> = ({ todo, onEdit, onDelete }) =>
             </div>
 
             <div className='flex items-center gap-2'>
-                <button
-                    onClick={() => onEdit?.(todo)}
-                    className='p-1.5 rounded-lg hover:bg-blue-50 transition cursor-pointer'
-                >
-                    <Edit className='w-5 h-5 text-blue-500' />
-                </button>
-                <button
-                    onClick={() => onDelete?.(todo.id!)}
-                    className='p-1.5 rounded-lg hover:bg-red-50 transition cursor-pointer'
-                >
-                    <Trash2 className='w-5 h-5 text-red-500' />
-                </button>
+                <Tooltip.Provider delayDuration={100}>
+                    <Tooltip.Root>
+                        <Tooltip.Trigger asChild>
+                            <button
+                                onClick={() => onEdit?.(todo)}
+                                className="p-1.5 rounded-lg hover:bg-blue-50 transition cursor-pointer"
+                            >
+                                <Edit className="w-5 h-5 text-blue-500" />
+                            </button>
+                        </Tooltip.Trigger>
+                        <Tooltip.Portal>
+                            <Tooltip.Content
+                                side="top"
+                                align="center"
+                                className="bg-gray-800 text-white text-xs px-2 py-1 rounded-md shadow-md animate-fade-in"
+                            >
+                                Bearbeiten
+                                <Tooltip.Arrow className="fill-gray-800" />
+                            </Tooltip.Content>
+                        </Tooltip.Portal>
+                    </Tooltip.Root>
+                </Tooltip.Provider>
+
+                <Tooltip.Provider delayDuration={100}>
+                    <Tooltip.Root>
+                        <Tooltip.Trigger asChild>
+                            <button
+                                onClick={() => onDelete?.(todo.id!)}
+                                className="p-1.5 rounded-lg hover:bg-red-50 transition cursor-pointer"
+                            >
+                                <Trash2 className="w-5 h-5 text-red-500" />
+                            </button>
+                        </Tooltip.Trigger>
+                        <Tooltip.Portal>
+                            <Tooltip.Content
+                                side="top"
+                                align="center"
+                                className="bg-gray-800 text-white text-xs px-2 py-1 rounded-md shadow-md animate-fade-in"
+                            >
+                                Löschen
+                                <Tooltip.Arrow className="fill-gray-800" />
+                            </Tooltip.Content>
+                        </Tooltip.Portal>
+                    </Tooltip.Root>
+                </Tooltip.Provider>
             </div>
         </motion.div>
     );
