@@ -1,30 +1,17 @@
-import * as Tooltip from '@radix-ui/react-tooltip';
 import { motion } from 'framer-motion';
-import { Edit, Trash2, Circle, CheckCircle2, Hourglass } from 'lucide-react';
+import { Edit, Trash2 } from 'lucide-react';
 
-import { Todo } from '../interfaces/todo.interface';
+import { ToDo } from '../interfaces/todo.interface';
+import { TooltipButton } from './TooltipButton';
+import { StatusIcon } from './StatusIcon';
 
 interface ToDoCardProps {
-    todo: Todo;
-    onEdit?: (todo: Todo) => void;
+    todo: ToDo;
+    onEdit?: (todo: ToDo) => void;
     onDelete?: (id: number) => void;
 }
 
 export const ToDoCard: React.FC<ToDoCardProps> = ({ todo, onEdit, onDelete }) => {
-    const statusInfo = {
-        open: { icon: <Circle className='text-gray-400' />, label: 'Offen' },
-        in_progress: {
-            icon: <Hourglass className='text-blue-500' />,
-            label: 'In Bearbeitung'
-        },
-        done: { icon: <CheckCircle2 className='text-green-500' />, label: 'Erledigt' }
-    };
-
-    const currentStatus = statusInfo[todo.status as keyof typeof statusInfo] ?? {
-        icon: <Circle className='text-gray-300' />,
-        label: 'Unbekannt'
-    };
-
     return (
         <motion.div
             initial={{ opacity: 0, y: 8 }}
@@ -40,84 +27,25 @@ export const ToDoCard: React.FC<ToDoCardProps> = ({ todo, onEdit, onDelete }) =>
                 shadow-sm hover:shadow-md
                 transition-all duration-200 ease-in-out
                 hover:-translate-y-0.5
-              '
+            '
         >
             <div className='flex items-center gap-4'>
-                <Tooltip.Provider delayDuration={100}>
-                    <Tooltip.Root>
-                        <Tooltip.Trigger asChild>
-                            <div className='mt-1 cursor-default'>{currentStatus.icon}</div>
-                        </Tooltip.Trigger>
-                        <Tooltip.Portal>
-                            <Tooltip.Content
-                                side='top'
-                                align='center'
-                                className='bg-gray-800 text-white text-xs px-2 py-1 rounded-md shadow-md animate-fade-in'
-                            >
-                                {currentStatus.label}
-                                <Tooltip.Arrow className='fill-gray-800' />
-                            </Tooltip.Content>
-                        </Tooltip.Portal>
-                    </Tooltip.Root>
-                </Tooltip.Provider>
+                <StatusIcon status={todo.status} />
                 <div>
-                    <h2 className='font-semibold text-gray-900 text-base leading-tight'>
-                        {todo.title}
-                    </h2>
+                    <h2 className='font-semibold text-gray-900 text-base leading-tight'>{todo.title}</h2>
                     {todo.description && (
-                        <p className='text-sm text-gray-500 mt-1 leading-snug'>
-                            {todo.description}
-                        </p>
+                        <p className='text-sm text-gray-500 mt-1 leading-snug'>{todo.description}</p>
                     )}
                 </div>
             </div>
 
             <div className='flex items-center gap-2'>
-                <Tooltip.Provider delayDuration={100}>
-                    <Tooltip.Root>
-                        <Tooltip.Trigger asChild>
-                            <button
-                                onClick={() => onEdit?.(todo)}
-                                className="p-1.5 rounded-lg hover:bg-blue-50 transition cursor-pointer"
-                            >
-                                <Edit className="w-5 h-5 text-blue-500" />
-                            </button>
-                        </Tooltip.Trigger>
-                        <Tooltip.Portal>
-                            <Tooltip.Content
-                                side="top"
-                                align="center"
-                                className="bg-gray-800 text-white text-xs px-2 py-1 rounded-md shadow-md animate-fade-in"
-                            >
-                                Bearbeiten
-                                <Tooltip.Arrow className="fill-gray-800" />
-                            </Tooltip.Content>
-                        </Tooltip.Portal>
-                    </Tooltip.Root>
-                </Tooltip.Provider>
-
-                <Tooltip.Provider delayDuration={100}>
-                    <Tooltip.Root>
-                        <Tooltip.Trigger asChild>
-                            <button
-                                onClick={() => onDelete?.(todo.id!)}
-                                className="p-1.5 rounded-lg hover:bg-red-50 transition cursor-pointer"
-                            >
-                                <Trash2 className="w-5 h-5 text-red-500" />
-                            </button>
-                        </Tooltip.Trigger>
-                        <Tooltip.Portal>
-                            <Tooltip.Content
-                                side="top"
-                                align="center"
-                                className="bg-gray-800 text-white text-xs px-2 py-1 rounded-md shadow-md animate-fade-in"
-                            >
-                                Löschen
-                                <Tooltip.Arrow className="fill-gray-800" />
-                            </Tooltip.Content>
-                        </Tooltip.Portal>
-                    </Tooltip.Root>
-                </Tooltip.Provider>
+                <TooltipButton tooltip='Bearbeiten' onClick={() => onEdit?.(todo)} className='hover:bg-blue-50 cursor-pointer'>
+                    <Edit className='w-5 h-5 text-blue-500' />
+                </TooltipButton>
+                <TooltipButton tooltip='Löschen' onClick={() => onDelete?.(todo.id!)} className='hover:bg-red-50 cursor-pointer'>
+                    <Trash2 className='w-5 h-5 text-red-500' />
+                </TooltipButton>
             </div>
         </motion.div>
     );

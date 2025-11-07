@@ -1,17 +1,17 @@
 import { useState } from 'react';
 
-import { Todo } from '../interfaces/todo.interface';
+import { ToDo } from '../interfaces/todo.interface';
 
 interface ToDoAlertProps {
-    onAddOrEdit: (todo: { title: string; description?: string; status: Todo['status'] }) => void;
+    onAddOrEdit: (todo: { title: string; description?: string; status: ToDo['status'] }) => void;
     onClose: () => void;
-    todo?: Todo;
+    todo?: ToDo;
 }
 
 export const ToDoAlert: React.FC<ToDoAlertProps> = ({ onAddOrEdit, onClose, todo }) => {
     const [title, setTitle] = useState(todo?.title || '');
     const [description, setDescription] = useState(todo?.description || '');
-    const [status, setStatus] = useState<Todo['status']>(todo?.status || 'open');
+    const [status, setStatus] = useState<ToDo['status']>(todo?.status || 'open');
 
     const handleSubmit = () => {
         if (!title.trim()) return;
@@ -60,7 +60,7 @@ export const ToDoAlert: React.FC<ToDoAlertProps> = ({ onAddOrEdit, onClose, todo
                         transition-all duration-300 ease-in-out
                       "
                     value={status}
-                    onChange={(e) => setStatus(e.target.value as Todo['status'])}
+                    onChange={(e) => setStatus(e.target.value as ToDo['status'])}
                 >
                     <option value="open">Offen</option>
                     <option value="in_progress">In Bearbeitung</option>

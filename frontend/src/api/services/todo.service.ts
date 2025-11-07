@@ -1,28 +1,28 @@
 import { AxiosResponse } from 'axios';
 
 import axiosClient from '../axios.client';
-import { Todo } from '../../interfaces/todo.interface';
+import { ToDo } from '../../interfaces/todo.interface';
 
 export class TodoService {
     private endpoint = 'todos/';
 
-    async getAll(): Promise<Todo[]> {
-        const res: AxiosResponse<Todo[]> = await axiosClient.get(this.endpoint);
+    async getAll(): Promise<ToDo[]> {
+        const res: AxiosResponse<ToDo[]> = await axiosClient.get(this.endpoint);
         return res.data;
     }
 
-    async get(id: number): Promise<Todo> {
-        const res: AxiosResponse<Todo> = await axiosClient.get(`${this.endpoint}${id}/`);
+    async get(id: number): Promise<ToDo> {
+        const res: AxiosResponse<ToDo> = await axiosClient.get(`${this.endpoint}${id}/`);
         return res.data;
     }
 
-    async create(todo: Partial<Todo>): Promise<Todo> {
-        const res: AxiosResponse<Todo> = await axiosClient.post(this.endpoint, todo);
+    async create(todo: Partial<ToDo>): Promise<ToDo> {
+        const res: AxiosResponse<ToDo> = await axiosClient.post(this.endpoint, todo);
         return res.data;
     }
 
-    async update(id: number, todo: Partial<Todo>): Promise<Todo> {
-        const res: AxiosResponse<Todo> = await axiosClient.put(`${this.endpoint}${id}/`, todo);
+    async update(id: number, todo: Partial<ToDo>): Promise<ToDo> {
+        const res: AxiosResponse<ToDo> = await axiosClient.put(`${this.endpoint}${id}/`, todo);
         return res.data;
     }
 
