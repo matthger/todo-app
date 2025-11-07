@@ -1,5 +1,5 @@
 import { AnimatePresence } from 'framer-motion';
-import { Plus } from 'lucide-react';
+import { Inbox, Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { todoService } from './api/services/todo.service';
@@ -20,9 +20,10 @@ function App() {
                 setLoading(true);
                 const data = await todoService.getAll();
                 setTodos(data);
+                setError(null);
             } catch (err) {
                 console.error(err);
-                setError('Failed to load todos');
+                setError('Fehler beim Laden der To-Dos.');
             } finally {
                 setLoading(false);
             }
@@ -34,9 +35,10 @@ function App() {
         try {
             const newTodo = await todoService.create(todo);
             setTodos([newTodo, ...todos]);
+            setError(null);
         } catch (err) {
             console.error(err);
-            setError('Failed to add todo');
+            setError('Fehler beim Hinzufügen des To-Dos.');
         }
     };
 
@@ -45,9 +47,10 @@ function App() {
         try {
             const newTodo = await todoService.update(editTodo.id!, updated);
             setTodos(todos.map(t => t.id === newTodo.id ? newTodo : t));
+            setError(null);
         } catch (err) {
             console.error(err);
-            setError('Failed to edit todo');
+            setError('Fehler beim Bearbeiten des To-Dos.');
         } finally {
             setEditTodo(null);
         }
@@ -57,9 +60,10 @@ function App() {
         try {
             await todoService.remove(id);
             setTodos(todos.filter((t) => t.id !== id));
+            setError(null);
         } catch (err) {
             console.error(err);
-            setError('Failed to delete todo');
+            setError('Fehler beim Löschen des To-Dos.');
         }
     };
 
@@ -83,12 +87,28 @@ function App() {
             </div>
 
             {loading && <p>Lade...</p>}
-            {error && <p className='text-red-500'>{error}</p>}
+            {error && !loading && (
+                <div className="flex items-center gap-2 p-4 mb-4 text-red-700 bg-red-50 border border-red-300 rounded-xl shadow animate-fade-in">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5 flex-shrink-0"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M12 21a9 9 0 110-18 9 9 0 010 18z" />
+                    </svg>
+                    <span className="text-sm font-medium">{error}</span>
+                </div>
+            )}
 
             <div className='flex flex-col gap-1'>
                 {todos.length === 0 && !loading && !error && (
-                    <div className="p-4 text-center text-gray-700 bg-gray-100 rounded-xl shadow-sm border border-gray-200 animate-fade-in">
-                        Keine To-Dos vorhanden. Füge welche hinzu, um zu beginnen!
+                    <div className="flex items-center gap-2 p-4 mb-4 text-gray-700 bg-gray-50 border border-gray-200 rounded-xl shadow animate-fade-in">
+                        <Inbox className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                        <span className="text-sm font-medium">
+                          Keine To-Dos vorhanden. Füge welche hinzu, um zu beginnen!
+                        </span>
                     </div>
                 )}
 
