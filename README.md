@@ -6,6 +6,7 @@ A simple full-stack To-Do application built with Django REST Framework, React, T
 - Full CRUD operations for to-dos
 - Fields: title, description (optional), status
 - Responsive UI with Tailwind CSS
+- Search, filter and sort functionality
 - REST API at `/api/todos/`
 - SQLite database
 
