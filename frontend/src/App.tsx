@@ -160,15 +160,6 @@ function App() {
             )}
 
             <div className='flex flex-col gap-1'>
-                {todos.length === 0 && !loading && !error && (
-                    <div className="flex items-center gap-2 p-4 mb-4 text-gray-700 bg-gray-50 border border-gray-200 rounded-xl shadow animate-fade-in">
-                        <Inbox className="w-5 h-5 text-gray-400 flex-shrink-0" />
-                        <span className="text-sm font-medium">
-                          Keine To-Dos vorhanden. Füge welche hinzu, um zu beginnen!
-                        </span>
-                    </div>
-                )}
-
                 {filteredTodos.length === 0 && !loading && !error && (
                     <div className="flex items-center gap-2 p-4 mb-4 text-gray-700 bg-gray-50 border border-gray-200 rounded-xl shadow animate-fade-in">
                         <Inbox className="w-5 h-5 text-gray-400 flex-shrink-0" />
