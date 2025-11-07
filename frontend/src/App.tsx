@@ -1,51 +1,162 @@
-import { useEffect, useState } from "react";
-import { getTodos, createTodo, deleteTodo, Todo } from "./api/todoApi";
+import { AnimatePresence } from 'framer-motion';
+import { ClipboardList, Inbox, Plus, AlertCircle } from 'lucide-react';
+import { useEffect, useState } from 'react';
+
+import { todoService } from './api/services/todo.service';
+import { ToDoCard } from './components/ToDoCard';
+import { ToDoAlert } from './components/ToDoAlert';
+import { ToDoControls } from './components/ToDoControls';
+import { ToDoMessage } from './components/ToDoMessage';
+import { ToDo } from './interfaces/todo.interface';
 
 function App() {
-  const [todos, setTodos] = useState<Todo[]>([]);
-  const [title, setTitle] = useState("");
+    const [todos, setTodos] = useState<ToDo[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [showAdd, setShowAdd] = useState(false);
+    const [editTodo, setEditTodo] = useState<ToDo | null>(null);
+    const [filterStatus, setFilterStatus] = useState<ToDo['status'] | 'all'>('all');
+    const [sortBy, setSortBy] = useState<'title' | 'status'>('title');
+    const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(() => {
-    getTodos().then(setTodos);
-  }, []);
+    useEffect(() => {
+        const fetchTodos = async () => {
+            try {
+                setLoading(true);
+                const data = await todoService.getAll();
+                setTodos(data);
+                setError(null);
+            } catch (err) {
+                console.error(err);
+                setError('Fehler beim Laden der To-Dos.');
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchTodos();
+    }, []);
 
-  const handleAdd = async () => {
-    const newTodo = await createTodo({ title, status: "open" });
-    setTodos([newTodo, ...todos]);
-    setTitle("");
-  };
+    const handleAddTodo = async (todo: { title: string; description?: string; status: ToDo['status'] }) => {
+        try {
+            const newTodo = await todoService.create(todo);
+            setTodos([newTodo, ...todos]);
+            setError(null);
+        } catch (err) {
+            console.error(err);
+            setError('Fehler beim Hinzufügen des To-Dos.');
+        }
+    };
 
-  const handleDelete = async (id: number) => {
-    await deleteTodo(id);
-    setTodos(todos.filter(t => t.id !== id));
-  };
+    const handleEditTodo = async (updated: { title: string; description?: string; status: ToDo['status'] }) => {
+        if (!editTodo) return;
+        try {
+            const newTodo = await todoService.update(editTodo.id!, updated);
+            setTodos(todos.map(t => t.id === newTodo.id ? newTodo : t));
+            setError(null);
+        } catch (err) {
+            console.error(err);
+            setError('Fehler beim Bearbeiten des To-Dos.');
+        } finally {
+            setEditTodo(null);
+        }
+    };
 
-  return (
-      <div className="max-w-xl mx-auto p-6">
-        <h1 className="text-2xl font-bold mb-4">To-Do Liste</h1>
+    const handleDelete = async (id: number) => {
+        try {
+            await todoService.remove(id);
+            setTodos(todos.filter((t) => t.id !== id));
+            setError(null);
+        } catch (err) {
+            console.error(err);
+            setError('Fehler beim Löschen des To-Dos.');
+        }
+    };
 
-        <div className="flex gap-2 mb-4">
-          <input
-              className="border rounded p-2 flex-1"
-              placeholder="Neues To-Do..."
-              value={title}
-              onChange={e => setTitle(e.target.value)}
-          />
-          <button onClick={handleAdd} className="bg-blue-500 text-white px-4 rounded">
-            Hinzufügen
-          </button>
+    const filteredTodos = todos
+        .filter(todo =>
+            (filterStatus === 'all' || todo.status === filterStatus) &&
+            todo.title.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+        .sort((a, b) => sortBy === 'title' ? a.title.localeCompare(b.title) : a.status.localeCompare(b.status));
+
+    return (
+        <div className='max-w-xl mx-auto p-6'>
+            <div className='flex items-center justify-between mb-4'>
+                <h1 className='flex items-center text-2xl font-bold gap-2'>
+                    <ClipboardList className='w-6 h-6 text-blue-700' />
+                    To-Do Liste
+                </h1>
+                <button
+                    onClick={() => setShowAdd(true)}
+                    className='
+                        w-10 h-10 flex items-center justify-center
+                        bg-green-500 text-white rounded-full
+                        hover:scale-110
+                        transition duration-300 ease-out
+                        shadow-md hover:shadow-lg
+                        cursor-pointer
+                    '
+                >
+                    <Plus className='w-5 h-5' />
+                </button>
+            </div>
+
+            <ToDoControls
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                filterStatus={filterStatus}
+                setFilterStatus={setFilterStatus}
+                sortBy={sortBy}
+                setSortBy={setSortBy}
+            />
+
+            {loading && <p>Lade...</p>}
+            {error && !loading && (
+                <ToDoMessage
+                    icon={<AlertCircle className='w-5 h-5 text-red-700' />}
+                    text={error}
+                    type='error'
+                />
+            )}
+            {filteredTodos.length === 0 && !loading && !error && (
+                <ToDoMessage
+                    icon={<Inbox className='w-5 h-5 text-gray-400' />}
+                    text={searchQuery || filterStatus !== 'all'
+                        ? 'Keine To-Dos entsprechen der Suche/Filter.'
+                        : 'Keine To-Dos vorhanden. Füge welche hinzu, um zu beginnen!'
+                    }
+                />
+            )}
+
+            <div className='flex flex-col gap-1'>
+                <AnimatePresence>
+                    {filteredTodos.map((todo) => (
+                        <ToDoCard
+                            key={todo.id}
+                            todo={todo}
+                            onEdit={(t) => setEditTodo(t)}
+                            onDelete={() => handleDelete(todo.id!)}
+                        />
+                    ))}
+                </AnimatePresence>
+            </div>
+
+            {editTodo && (
+                <ToDoAlert
+                    todo={editTodo}
+                    onAddOrEdit={handleEditTodo}
+                    onClose={() => setEditTodo(null)}
+                />
+            )}
+
+            {showAdd && (
+                <ToDoAlert
+                    onAddOrEdit={handleAddTodo}
+                    onClose={() => setShowAdd(false)}
+                />
+            )}
         </div>
-
-        <ul>
-          {todos.map(todo => (
-              <li key={todo.id} className="border-b py-2 flex justify-between items-center">
-                <span>{todo.title}</span>
-                <button onClick={() => handleDelete(todo.id!)} className="text-red-500">✕</button>
-              </li>
-          ))}
-        </ul>
-      </div>
-  );
+    );
 }
 
 export default App;

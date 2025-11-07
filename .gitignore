@@ -51,7 +51,7 @@ yarn-error.log*
 .env.production.local
 
 # Tailwind output
-src/output.css
+frontend/src/output.css
 
 .DS_Store
 Thumbs.db
