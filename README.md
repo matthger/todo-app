@@ -10,6 +10,8 @@ A simple full-stack To-Do application built with Django REST Framework, React, T
 - REST API at `/api/todos/`
 - SQLite database
 
+![Screenshot](/assets/sample_screenshot.png)
+
 ## Project Structure
 ```
 todo-app/
