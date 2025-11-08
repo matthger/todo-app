@@ -40,8 +40,8 @@ export const ToDoCard: React.FC<ToDoCardProps> = ({ todo, onEdit, onDelete }) =>
             </div>
 
             <div className='flex items-center gap-2'>
-                <TooltipButton tooltip='Bearbeiten' onClick={() => onEdit?.(todo)} className='hover:bg-blue-50 cursor-pointer'>
-                    <Edit className='w-5 h-5 text-blue-500' />
+                <TooltipButton tooltip='Bearbeiten' onClick={() => onEdit?.(todo)} className='hover:bg-sky-50 cursor-pointer'>
+                    <Edit className='w-5 h-5 text-sky-600' />
                 </TooltipButton>
                 <TooltipButton tooltip='Löschen' onClick={() => onDelete?.(todo.id!)} className='hover:bg-red-50 cursor-pointer'>
                     <Trash2 className='w-5 h-5 text-red-500' />

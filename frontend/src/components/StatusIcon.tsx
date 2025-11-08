@@ -10,7 +10,7 @@ interface StatusIconProps {
 export const StatusIcon: React.FC<StatusIconProps> = ({ status }) => {
     const statusInfo = {
         open: { icon: <Circle className="text-gray-400" />, label: 'Offen' },
-        in_progress: { icon: <Hourglass className="text-blue-500" />, label: 'In Bearbeitung' },
+        in_progress: { icon: <Hourglass className="text-sky-600" />, label: 'In Bearbeitung' },
         done: { icon: <CheckCircle2 className="text-green-500" />, label: 'Erledigt' },
     };
 
