@@ -80,81 +80,83 @@ function App() {
         .sort((a, b) => sortBy === 'title' ? a.title.localeCompare(b.title) : a.status.localeCompare(b.status));
 
     return (
-        <div className='max-w-xl mx-auto p-6'>
-            <div className='flex items-center justify-between mb-4'>
-                <h1 className='flex items-center text-2xl font-bold gap-2'>
-                    <ClipboardList className='w-6 h-6 text-blue-700' />
-                    To-Do Liste
-                </h1>
-                <button
-                    onClick={() => setShowAdd(true)}
-                    className='
-                        w-10 h-10 flex items-center justify-center
-                        bg-green-500 text-white rounded-full
-                        hover:scale-110
-                        transition duration-300 ease-out
-                        shadow-md hover:shadow-lg
-                        cursor-pointer
-                    '
-                >
-                    <Plus className='w-5 h-5' />
-                </button>
+        <div className="min-h-screen bg-blue-50 p-6">
+            <div className='max-w-xl mx-auto'>
+                <div className='flex items-center justify-between mb-4'>
+                    <h1 className='flex items-center text-2xl font-bold gap-2'>
+                        <ClipboardList className='w-6 h-6 text-sky-600' />
+                        To-Do Liste
+                    </h1>
+                    <button
+                        onClick={() => setShowAdd(true)}
+                        className='
+                            w-10 h-10 flex items-center justify-center
+                            bg-green-500 text-white rounded-full
+                            hover:scale-110
+                            transition duration-300 ease-out
+                            shadow-md hover:shadow-lg
+                            cursor-pointer
+                        '
+                    >
+                        <Plus className='w-5 h-5' />
+                    </button>
+                </div>
+
+                <ToDoControls
+                    searchQuery={searchQuery}
+                    setSearchQuery={setSearchQuery}
+                    filterStatus={filterStatus}
+                    setFilterStatus={setFilterStatus}
+                    sortBy={sortBy}
+                    setSortBy={setSortBy}
+                />
+
+                {loading && <p>Lade...</p>}
+                {error && !loading && (
+                    <ToDoMessage
+                        icon={<AlertCircle className='w-5 h-5 text-red-700' />}
+                        text={error}
+                        type='error'
+                    />
+                )}
+                {filteredTodos.length === 0 && !loading && !error && (
+                    <ToDoMessage
+                        icon={<Inbox className='w-5 h-5 text-gray-400' />}
+                        text={searchQuery || filterStatus !== 'all'
+                            ? 'Keine To-Dos entsprechen der Suche/Filter.'
+                            : 'Keine To-Dos vorhanden. Füge welche hinzu, um zu beginnen!'
+                        }
+                    />
+                )}
+
+                <div className='flex flex-col gap-1'>
+                    <AnimatePresence>
+                        {filteredTodos.map((todo) => (
+                            <ToDoCard
+                                key={todo.id}
+                                todo={todo}
+                                onEdit={(t) => setEditTodo(t)}
+                                onDelete={() => handleDelete(todo.id!)}
+                            />
+                        ))}
+                    </AnimatePresence>
+                </div>
+
+                {editTodo && (
+                    <ToDoAlert
+                        todo={editTodo}
+                        onAddOrEdit={handleEditTodo}
+                        onClose={() => setEditTodo(null)}
+                    />
+                )}
+
+                {showAdd && (
+                    <ToDoAlert
+                        onAddOrEdit={handleAddTodo}
+                        onClose={() => setShowAdd(false)}
+                    />
+                )}
             </div>
-
-            <ToDoControls
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-                filterStatus={filterStatus}
-                setFilterStatus={setFilterStatus}
-                sortBy={sortBy}
-                setSortBy={setSortBy}
-            />
-
-            {loading && <p>Lade...</p>}
-            {error && !loading && (
-                <ToDoMessage
-                    icon={<AlertCircle className='w-5 h-5 text-red-700' />}
-                    text={error}
-                    type='error'
-                />
-            )}
-            {filteredTodos.length === 0 && !loading && !error && (
-                <ToDoMessage
-                    icon={<Inbox className='w-5 h-5 text-gray-400' />}
-                    text={searchQuery || filterStatus !== 'all'
-                        ? 'Keine To-Dos entsprechen der Suche/Filter.'
-                        : 'Keine To-Dos vorhanden. Füge welche hinzu, um zu beginnen!'
-                    }
-                />
-            )}
-
-            <div className='flex flex-col gap-1'>
-                <AnimatePresence>
-                    {filteredTodos.map((todo) => (
-                        <ToDoCard
-                            key={todo.id}
-                            todo={todo}
-                            onEdit={(t) => setEditTodo(t)}
-                            onDelete={() => handleDelete(todo.id!)}
-                        />
-                    ))}
-                </AnimatePresence>
-            </div>
-
-            {editTodo && (
-                <ToDoAlert
-                    todo={editTodo}
-                    onAddOrEdit={handleEditTodo}
-                    onClose={() => setEditTodo(null)}
-                />
-            )}
-
-            {showAdd && (
-                <ToDoAlert
-                    onAddOrEdit={handleAddTodo}
-                    onClose={() => setShowAdd(false)}
-                />
-            )}
         </div>
     );
 }
